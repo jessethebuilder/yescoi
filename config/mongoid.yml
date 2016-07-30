@@ -3,6 +3,7 @@ production:
     default:
       uri: <%= ENV['MONGOLAB_URI'] %>
       options:
+        connect_timeout: 15
 development:
   # Configure available database clients. (required)
   clients:
