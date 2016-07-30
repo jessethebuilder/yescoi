@@ -38,7 +38,7 @@ class Walker
   end
 
   def set_machine
-    @machine = JsScrape.new(timeout: 180, :proxy => false, :debug => false, :phantomjs => Phantomjs.path)
+    @machine = JsScrape.new(timeout: 180, :proxy => false, :debug => false)
   end
 
   def goto_index(page_num)
