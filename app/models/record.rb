@@ -83,7 +83,6 @@ class Record
 
   def parse_assessment(element)
     tentative = element.css('font')[0].text
-    # current = element.text.match(/#{tentative}/, '')
     current = element.text.gsub(tentative, '')
     "#{tentative.gsub(/Tentative/, 'Tentative ')} / #{current}"
   end
