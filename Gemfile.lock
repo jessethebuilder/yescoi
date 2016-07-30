@@ -100,6 +100,7 @@ GEM
       mini_portile2 (~> 2.1.0)
       pkg-config (~> 1.1.7)
     origin (2.2.0)
+    phantomjs (2.1.1.0)
     pkg-config (1.1.7)
     poltergeist (1.10.0)
       capybara (~> 2.1)
@@ -174,6 +175,7 @@ DEPENDENCIES
   farm_scrape!
   jbuilder (~> 2.5)
   mongoid
+  phantomjs
   puma (~> 3.0)
   rails (= 4.2.5)
   rest-client
