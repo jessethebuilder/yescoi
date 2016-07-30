@@ -1,7 +1,7 @@
 production:
   sessions:
     default:
-      uri: mongodb://heroku_1f6ln3zk:jjno2bs81m23ooqlfhsrk8nmt2@ds139385-a0.mlab.com:39385,ds139385-a1.mlab.com:39385/heroku_1f6ln3zk?replicaSet=rs-ds139385
+      uri: <%= ENV['MONGOLAB_URI']
       options:
         consistency: :strong
         max_retries: 30
