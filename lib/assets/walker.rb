@@ -56,18 +56,18 @@ class Walker
     end
   end
 
-  def protected_step(insist = true, &block)
-    incomplete = insist
+  def protected_step(retry_count = 10, &block)
     begin
       begin
         block.call
         incomplete = false
-      rescue Capybara::Poltergeist::StatusFailError => cap_err
-        puts "WALKER ERROR: #{cap_err.message}"
-        @machine.driver.quit
+      rescue Capybara::Poltergeist::Error => cap_err
+        puts "WALKER ERROR (Poltergeist): #{cap_err.message}"
+        @machine.page.driver.quit
         set_machine
+        retry_count -= 1
       end
-    end while incomplete
+    end while retry_count == 0
   end
 
 end
