@@ -16,9 +16,9 @@ class Record
   field :property_class, type: String
   field :school_district, type: String
   field :property_description, type: String
-  field :land_assessment, type: String
-  field :full_market_value, type: String
-  field :total_assessment, type: String
+  field :land_assessment, type: Hash
+  field :full_market_value, type: Hash
+  field :total_assessment, type: Hash
   field :grid_east, type: Integer
   field :grid_north, type: Integer
 
@@ -72,6 +72,7 @@ class Record
     self.property_class = doc.css('#lblBasePropClass').text.strip
     self.property_description = doc.css('#lblLglPropDesc').text.strip
 
+
     self.land_assessment = parse_assessment(doc.css('#lblLandAssess'))
     self.total_assessment = parse_assessment(doc.css('#lblTotalAssess'))
     self.full_market_value = parse_assessment(doc.css('#lblFullMarketValue'))
@@ -84,7 +85,18 @@ class Record
   def parse_assessment(element)
     tentative = element.css('font')[0].text
     current = element.text.gsub(tentative, '')
-    "#{tentative.gsub(/Tentative/, 'Tentative ')} / #{current}"
+    h = {}
+    r = /(\d{4}).+?([\d,]+)/
+
+    current =~ r
+    h[:year] = $1.to_i
+    h[:value] = $2.gsub(',', '').to_f
+
+    tentative =~ r
+    h[:tentative_year] = $1.to_i
+    h[:tentative_value] = $2.gsub(',', '').to_f
+
+    h
   end
 
   def goto_record_start
