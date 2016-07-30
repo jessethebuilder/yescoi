@@ -4,8 +4,9 @@ GIT
   specs:
     farm_ruby (0.1.0)
 
-PATH
-  remote: C:/Users/Bucky/Desktop/jesseweb/farm_scrape
+GIT
+  remote: https://github.com/jessethebuilder/farm_scrape
+  revision: c506636082ecf90636f2b4293a23e97d35c99038
   specs:
     farm_scrape (0.1.0)
       capybara (~> 2.7.1)

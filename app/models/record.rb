@@ -72,13 +72,20 @@ class Record
     self.property_class = doc.css('#lblBasePropClass').text.strip
     self.property_description = doc.css('#lblLglPropDesc').text.strip
 
-    self.land_assessment = doc.css('#lblLandAssess').text.strip
-    self.total_assessment = doc.css('#lblTotalAssess').text.strip
-    self.full_market_value = doc.css('#lblFullMarketValue').text.strip
+    self.land_assessment = parse_assessment(doc.css('#lblLandAssess'))
+    self.total_assessment = parse_assessment(doc.css('#lblTotalAssess'))
+    self.full_market_value = parse_assessment(doc.css('#lblFullMarketValue'))
 
     %w|GridEast GridNorth|.each do |attr|
       self.send("#{attr.underscore}=", doc.css("#lbl#{attr}").text.strip)
     end
+  end
+
+  def parse_assessment(element)
+    tentative = element.css('font')[0].text
+    # current = element.text.match(/#{tentative}/, '')
+    current = element.text.gsub(tentative, '')
+    "#{tentative.gsub(/Tentative/, 'Tentative ')} / #{current}"
   end
 
   def goto_record_start

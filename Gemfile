@@ -31,8 +31,8 @@ gem "mongoid"#, git: 'git://github.com/mongoid/mongoid.git'
 gem 'farm_ruby', :git => 'https://github.com/jessethebuilder/farm_ruby'
 # gem 'farm_ruby', :path => 'C:\Users\Bucky\Desktop\jesseweb\farm_ruby'
 
-# gem 'farm_scrape', :git => 'https://github.com/jessethebuilder/farm_scrape'
-gem 'farm_scrape', :path => 'C:\Users\Bucky\Desktop\jesseweb\farm_scrape'
+gem 'farm_scrape', :git => 'https://github.com/jessethebuilder/farm_scrape'
+# gem 'farm_scrape', :path => 'C:\Users\Bucky\Desktop\jesseweb\farm_scrape'
 
 gem 'rest-client'
 
