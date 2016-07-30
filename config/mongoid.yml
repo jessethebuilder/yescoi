@@ -1,3 +1,14 @@
+production:
+  sessions:
+    default:
+      uri: mongodb://heroku_1f6ln3zk:jjno2bs81m23ooqlfhsrk8nmt2@ds139385-a0.mlab.com:39385,ds139385-a1.mlab.com:39385/heroku_1f6ln3zk?replicaSet=rs-ds139385
+      options:
+        consistency: :strong
+        max_retries: 30
+        retry_interval: 1
+        timeout: 15
+        safe: true
+        refresh_interval: 10
 development:
   # Configure available database clients. (required)
   clients:
