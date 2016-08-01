@@ -5,6 +5,7 @@ class Walker
 
     @start_url = url
     @base_url = url.match(/\A(https?:\/\/.+?)\//)[1]
+    @error_count = 0
     set_machine
     goto_first_index
   end
@@ -14,16 +15,22 @@ class Walker
     count = 1
     while record_rows = get_record_rows
       record_rows.each do |row|
-        protected_step do
-          url = "#{@base_url}/#{row.css('td')[1].css('a')[0]['href']}"
-          r = Record.new(record_url: url, row: row, machine: @machine).parse.save
+        begin
+          protected_step do
+            url = "#{@base_url}/#{row.css('td')[1].css('a')[0]['href']}"
+            r = Record.new(record_url: url, row: row, machine: @machine).parse.save
+          end
+        rescue => e
+          puts 'WALKER: Unknown Error on Record Save!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
+          @error_count += 1
         end
       end
 
       count += 1
       goto_index(count)
     end
-    puts "WALKER: Complete in #{(Time.now.to_i - @started_at) / 1000} Seconds"
+    puts "WALKER: Complete in #{(Time.now.to_i - @started_at) / 1000} Seconds with
+         #{@error_count} Record Saving Errors!" 
     count
   end
 
