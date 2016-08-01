@@ -5,7 +5,6 @@ class Walker
 
     @start_url = url
     @base_url = url.match(/\A(https?:\/\/.+?)\//)[1]
-    @error_count = 0
     set_machine
     goto_first_index
   end
@@ -13,6 +12,7 @@ class Walker
   def parse
     puts 'WALKER: Parsing...'
     count = 1
+    error_count = 0
     while record_rows = get_record_rows
       record_rows.each do |row|
         begin
@@ -22,7 +22,7 @@ class Walker
           end
         rescue => e
           puts 'WALKER: Unknown Error on Record Save!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
-          @error_count += 1
+          error_count += 1
         end
       end
 
@@ -30,8 +30,8 @@ class Walker
       goto_index(count)
     end
     puts "WALKER: Complete in #{(Time.now.to_i - @started_at) / 1000} Seconds with
-         #{@error_count} Record Saving Errors!" 
-    count
+         #{error_count} Record Saving Errors!"
+    {:count => count, :errors => error_count}
   end
 
   private
@@ -82,16 +82,18 @@ end
 class MultiWalker
   def initialize(urls)
     @urls = urls
-    @count = 0
   end
 
   def parse
+    count = 0
+    error_count = 0
     @urls.each do |url|
-      saved_count = Walker.new(url).parse
-      @count += saved_count
-      puts "WALKER: #{saved_count} Records Saved for a Total of: #{@count}"
+      saved_hash = Walker.new(url).parse
+      count += saved_hash[:count]
+      error_count += error_count
     end
 
-    puts "WALKER: All Records Saved for Total of: #{@count}!!"
+    puts "MULTI_WALKER: All Records Saved for Total of: #{count} with #{error_count}
+          Record Saving Errors!!!!!!"
   end
 end
