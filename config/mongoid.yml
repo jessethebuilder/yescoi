@@ -1,7 +1,7 @@
 production:
   clients:
     default:
-      uri: uri: mongodb://username:password@host1:port1,host2:port2/database
+      uri:  <%= ENV['MONGOLAB_URI'] %>
       options:
         connect_timeout: 15
 development:
