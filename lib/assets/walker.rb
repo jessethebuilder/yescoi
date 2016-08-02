@@ -11,23 +11,24 @@ class Walker
 
   def parse
     puts 'WALKER: Parsing...'
-    count = 1
     error_count = 0
-    while record_rows = get_record_rows
+    count = 0
+
+    goto_index(get_next_page)
+
+    while  record_rows = get_record_rows
       record_rows.each do |row|
         begin
           protected_step do
             url = "#{@base_url}/#{row.css('td')[1].css('a')[0]['href']}"
             r = Record.new(record_url: url, row: row, machine: @machine).parse.save
+            count += 1
           end
         rescue => e
           puts 'WALKER: Unknown Error on Record Save!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!'
           error_count += 1
         end
       end
-
-      count += 1
-      goto_index(count)
     end
     puts "WALKER: Complete in #{(Time.now.to_i - @started_at) / 1000} Seconds with
          #{error_count} Record Saving Errors!"
@@ -77,6 +78,18 @@ class Walker
     end while retry_count == 0
   end
 
+  def get_next_page
+    page = hal.last_pages[@base_url]
+    ret = page ? page + 1 : 1
+    hal.last_pages[@base_url] = ret
+    hal.save
+    ret
+  end
+
+  def hal
+    Hal.first || Hal.create
+  end
+
 end
 
 class MultiWalker
@@ -89,8 +102,8 @@ class MultiWalker
     error_count = 0
     @urls.each do |url|
       saved_hash = Walker.new(url).parse
-      count += saved_hash[:count]
-      error_count += error_count
+      count += saved_hash[:count].to_i
+      error_count += saved_hash[:error_count].to_i
     end
 
     puts "MULTI_WALKER: All Records Saved for Total of: #{count} with #{error_count}
