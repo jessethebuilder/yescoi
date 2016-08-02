@@ -29,6 +29,8 @@ class Walker
           error_count += 1
         end
       end
+
+      goto_index(get_next_page)
     end
     puts "WALKER: Complete in #{(Time.now.to_i - @started_at) / 1000} Seconds with
          #{error_count} Record Saving Errors!"
