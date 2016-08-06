@@ -10,11 +10,12 @@ class Walker
   end
 
   def parse
-    puts 'WALKER: Parsing...'
+    puts "WALKER: Parsing - #{@start_url}"
     error_count = 0
     count = 0
+    page_count = 1
 
-    goto_index(get_next_page)
+    goto_index(page_count)
 
     while  record_rows = get_record_rows
       record_rows.each do |row|
@@ -30,7 +31,8 @@ class Walker
         end
       end
 
-      goto_index(get_next_page)
+      page_count += 1
+      goto_index(page_count)
     end
     puts "WALKER: Complete in #{(Time.now.to_i - @started_at) / 1000} Seconds with
          #{error_count} Record Saving Errors!"
@@ -60,9 +62,15 @@ class Walker
   def goto_first_index
     protected_step do
       @machine.goto @start_url
-      @machine.page.click_link 'Click Here for Public Access'
-      @machine.page.check 'chkAgree'
-      @machine.page.click_button 'Continue'
+
+      @machine.page.click_link 'Click Here for Public Access' if @machine.page.has_link?('Click Here for Public Access')
+
+      if @machine.page.has_css?('#chkAgree')
+        @machine.page.check 'chkAgree'
+        @machine.page.click_button 'Continue'
+      end
+
+      @machine.page.click_button 'Serch' if @machine.page.has_css?('#tblSearch')
     end
   end
 
@@ -89,14 +97,13 @@ class Walker
   end
 
   def hal
-    Hal.first || Hal.create
+    Hal.first
   end
-
 end
 
 class MultiWalker
-  def initialize(urls)
-    @urls = urls
+  def initialize
+    @urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
   end
 
   def parse
