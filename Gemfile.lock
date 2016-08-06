@@ -78,6 +78,8 @@ GEM
       activesupport (>= 3.0.0, < 5.1)
       multi_json (~> 1.2)
     json (1.8.3)
+    launchy (2.4.3)
+      addressable (~> 2.3)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.4)
@@ -178,6 +180,7 @@ DEPENDENCIES
   farm_ruby!
   farm_scrape!
   jbuilder (~> 2.5)
+  launchy
   mongoid
   puma (~> 3.0)
   rails (= 4.2.5)

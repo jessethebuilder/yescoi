@@ -36,6 +36,8 @@ gem 'farm_scrape', :git => 'https://github.com/jessethebuilder/farm_scrape'
 
 gem 'rest-client'
 
+gem 'launchy'
+
 group :production do
   gem 'rails_12factor'
   # gem 'phantomjs', :require => 'phantomjs/poltergeist'

@@ -16,9 +16,9 @@ class Record
   field :property_class, type: String
   field :school_district, type: String
   field :property_description, type: String
-  field :land_assessment, type: Hash
-  field :full_market_value, type: Hash
-  field :total_assessment, type: Hash
+  field :land_assessment, type: String
+  field :full_market_value, type: String
+  field :total_assessment, type: String
   field :grid_east, type: Integer
   field :grid_north, type: Integer
 
@@ -47,7 +47,11 @@ class Record
   end
 
   def goto_tax_info
-    @machine.page.click_button 'btnTaxInfo'
+    if(@machine.page.has_css?('#btnTaxInfo'))
+      @machine.page.click_button 'btnTaxInfo'
+    else
+      @machine.page.click_button 'btnCTaxInfo'
+    end
     @machine.page.click_link 'lnkHistorical'
   end
 
@@ -73,31 +77,34 @@ class Record
     self.property_description = doc.css('#lblLglPropDesc').text.strip
 
 
-    self.land_assessment = parse_assessment(doc.css('#lblLandAssess'))
-    self.total_assessment = parse_assessment(doc.css('#lblTotalAssess'))
-    self.full_market_value = parse_assessment(doc.css('#lblFullMarketValue'))
+    # self.land_assessment = parse_assessment(doc.css('#lblLandAssess'))
+    # self.total_assessment = parse_assessment(doc.css('#lblTotalAssess'))
+    # self.full_market_value = parse_assessment(doc.css('#lblFullMarketValue'))
+    self.land_assessment = doc.css('#lblLandAssess')
+    self.total_assessment = doc.css('#lblTotalAssess')
+    self.full_market_value = doc.css('#lblFullMarketValue')
 
     %w|GridEast GridNorth|.each do |attr|
       self.send("#{attr.underscore}=", doc.css("#lbl#{attr}").text.strip)
     end
   end
 
-  def parse_assessment(element)
-    tentative = element.css('font')[0].text
-    current = element.text.gsub(tentative, '')
-    h = {}
-    r = /(\d{4}).+?([\d,]+)/
-
-    current =~ r
-    h[:year] = $1.to_i
-    h[:value] = $2.gsub(',', '').to_f
-
-    tentative =~ r
-    h[:tentative_year] = $1.to_i
-    h[:tentative_value] = $2.gsub(',', '').to_f
-
-    h
-  end
+  # def parse_assessment(element)
+  #   tentative = element.css('font')[0].text
+  #   current = element.text.gsub(tentative, '')
+  #   h = {}
+  #   r = /(\d{4}).+?([\d,]+)/
+  #
+  #   current =~ r
+  #   h[:year] = $1.to_i
+  #   h[:value] = $2.gsub(',', '').to_f
+  #
+  #   tentative =~ r
+  #   h[:tentative_year] = $1.to_i
+  #   h[:tentative_value] = $2.gsub(',', '').to_f
+  #
+  #   h
+  # end
 
   def goto_record_start
     machine.goto self.record_url
