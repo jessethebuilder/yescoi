@@ -41,8 +41,9 @@ class Walker
            end
 
           count += 1
-          #dbg
-          return if count == 10
+
+          # To cycle though all urls
+          #return if count == 10
         rescue => e
           puts e.inspect
           puts e.backtrace.join("\n\n")
