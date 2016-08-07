@@ -1,7 +1,8 @@
 class Record
   include Mongoid::Document
 
-  attr_accessor :machine, :row
+  attr_accessor :machine
+  # , :row
 
   field :record_url, type: String
   field :municipality, type: String
@@ -25,7 +26,7 @@ class Record
   embeds_many :tax_summaries
 
   def parse
-    parse_index_row
+    #parse_index_row
     goto_record_start
     parse_main_page
     goto_tax_info
@@ -40,8 +41,12 @@ class Record
   def parse_tax_info
     %w|tblSummary tblHistoricalSummary|.each do |tbl|
       rows = @machine.doc.css("##{tbl} tr")[1..-2]
-      rows.each do |row|
-        self.tax_summaries << TaxSummary.new(:row => row).parse
+      if rows
+        rows.each do |row|
+          self.tax_summaries << TaxSummary.new(:row => row).parse
+        end
+      else
+        puts 'no tax-info ----------------------------------------------'
       end
     end
   end
@@ -49,19 +54,13 @@ class Record
   def goto_tax_info
     if(@machine.page.has_css?('#btnTaxInfo'))
       @machine.page.click_button 'btnTaxInfo'
-    else
-      @machine.page.click_button 'btnCTaxInfo'
+  # ?  else
+      # @machine.page.click_button 'btnCTaxInfo'
+    # end
+      if @machine.page.has_link? 'Display Historical Tax Information'
+        @machine.page.click_link 'Display Historical Tax Information'
+      end
     end
-    @machine.page.click_link 'lnkHistorical'
-  end
-
-  def parse_index_row
-    cols = self.row.css('td')
-    self.municipality = cols[0].text.strip.split(' - ')[1]
-    self.tax_id = cols[1].text.strip
-    self.owner = cols[2].text.strip
-    self.street_num = cols[3].text.strip
-    self.street_name = cols[4].text.strip
   end
 
   def parse_main_page
@@ -71,15 +70,12 @@ class Record
       self.send("#{attr.underscore}=", doc.css("#lbl#{attr}").text.strip)
     end
 
+    self.municipality = doc.css('#lblMunic').text.strip
     self.swis = doc.css('#lblSwis').text.strip.to_i
     self.school_district = doc.css('#lblSchoolDist').text.strip
     self.property_class = doc.css('#lblBasePropClass').text.strip
     self.property_description = doc.css('#lblLglPropDesc').text.strip
 
-
-    # self.land_assessment = parse_assessment(doc.css('#lblLandAssess'))
-    # self.total_assessment = parse_assessment(doc.css('#lblTotalAssess'))
-    # self.full_market_value = parse_assessment(doc.css('#lblFullMarketValue'))
     self.land_assessment = doc.css('#lblLandAssess')
     self.total_assessment = doc.css('#lblTotalAssess')
     self.full_market_value = doc.css('#lblFullMarketValue')
@@ -88,23 +84,6 @@ class Record
       self.send("#{attr.underscore}=", doc.css("#lbl#{attr}").text.strip)
     end
   end
-
-  # def parse_assessment(element)
-  #   tentative = element.css('font')[0].text
-  #   current = element.text.gsub(tentative, '')
-  #   h = {}
-  #   r = /(\d{4}).+?([\d,]+)/
-  #
-  #   current =~ r
-  #   h[:year] = $1.to_i
-  #   h[:value] = $2.gsub(',', '').to_f
-  #
-  #   tentative =~ r
-  #   h[:tentative_year] = $1.to_i
-  #   h[:tentative_value] = $2.gsub(',', '').to_f
-  #
-  #   h
-  # end
 
   def goto_record_start
     machine.goto self.record_url

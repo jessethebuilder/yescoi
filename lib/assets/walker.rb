@@ -14,9 +14,10 @@ class Walker
     @start_url = url
     @base_url = @start_url.match(/\A(https?:\/\/.+?)\//)[1]
     @index_url_base = "#{@base_url}/viewlist.aspx?sort=printkey&swis=all&advanced=true"
-    puts @index_url_base
+
     set_machine
     goto_first_index
+    set_row_indexes
   end
 
   def parse
@@ -27,26 +28,20 @@ class Walker
 
     goto_index(page_count)
 
-    #goto_index(page_count) if begin_search
-
-    @machine.page.save_and_open_page
     while  record_rows = get_record_rows
-      record_rows[0].css('td').each_with_index do |td, i|
-        if td.css('a') && td.css('a').text == 'Tax ID'
-          @index_col = i
-          break
-        end
-      end
+      record_rows.each do |row|
 
-      record_rows[1..-1].each do |row|
         begin
-          protected_step do
-            url = "#{@base_url}/#{row.css('td')[@index_col].css('a')[0]['href']}"
-            r = Record.new(record_url: url, row: row, machine: @machine).parse.save
-            count += 1
-          end
+          url = "#{@base_url}/#{row.css('td')[@row_indexes[:tax_id]].css('a')[0]['href']}"
+          ghost_step do
+             r = Record.new({record_url: url, machine: @machine}.merge(index_vars(row))).parse.save
+           end
+
+          count += 1
         rescue => e
-          puts e
+          puts e.inspect
+          puts e.backtrace
+          puts url
           @machine.page.save_and_open_page
           error_count += 1
           exit
@@ -63,20 +58,57 @@ class Walker
 
   private
 
-  def tax_id_cell_index
-    if table = @machine.doc.css('#tblList')
-      header_cells = table.search('tbody tr').first.css('td')
-      header_cells.each_with_index do |cell, i|
-        if cell.has_css?('a') && cell.css('a').text == 'Tax ID'
-          return i
+  def index_vars(row)
+    h = {}
+    cells = row.css('td')
+
+    @row_indexes.each do |k, v|
+      h[k] = cells[v].text.strip
+    end
+  end
+
+  def set_row_indexes
+    attrs = {tax_id: 'Tax ID', owner: 'Owner', street_num: 'Street #', street_name: 'Street Name'}
+    @row_indexes = {}
+
+    table = @machine.doc.css('#tblList')
+    row = table.css('tr').first
+    cols = row.css('td')
+
+    attrs.each do |k, v|
+      cols.each_with_index do |col, i|
+        if col.text.strip == v
+          @row_indexes[k] = i
         end
       end
     end
+
+
+
+    # def parse_index_row
+    #   cols = self.row.css('td')
+    #   self.tax_id = cols[1].text.strip
+    #   self.owner = cols[2].text.strip
+    #   self.street_num = cols[3].text.strip
+    #   self.street_name = cols[4].text.strip
+
+    #   get this elsewhere
+    #   self.municipality = cols[0].text.strip.split(' - ')[1]
+    # end
+
+    # record_rows[0].css('td').each_with_index do |td, i|
+    #   if td.css('a') && td.css('a').text == 'Tax ID'
+    #     @index_col = i
+    #     break
+    #   end
+    # end
+
+
   end
 
   def get_record_rows
     if table = @machine.doc.css('#tblList')
-      rows = table.css('tr')
+      rows = table.css('tr')[1..-1]
     else
       nil
     end
@@ -88,12 +120,12 @@ class Walker
 
   def goto_index(page_num)
     url = "#{@index_url_base}?page=#{page_num}"
-    protected_step{ @machine.goto url }
+    ghost_step{ @machine.goto url }
     puts "WALKER: Preparing to parse page #{page_num}"
   end
 
   def goto_first_index
-    protected_step do
+    ghost_step do
       @machine.goto @start_url
       access && agree
       begin_search
@@ -131,7 +163,7 @@ class Walker
     end
   end
 
-  def protected_step(retry_count = 10, &block)
+  def ghost_step(retry_count = 10, &block)
     begin
       begin
         block.call
@@ -154,10 +186,10 @@ class MultiWalker
     @urls = h.urls - h.complete_urls
 
     # original
-    @urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
+  #  @urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
 
 
-    @urls = ['http://yates.sdgnys.com/search.aspx?advanced=true']
+  #  @urls = ['http://yates.sdgnys.com/search.aspx?advanced=true']
   end
 
   def parse
@@ -194,7 +226,7 @@ class MultiWalker
   end
 
   def prepare_hal
-    puts 'waking hal'
+    puts 'waking hal...'
     h = hal
     h.busy_urls = []
     h.save
