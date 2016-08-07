@@ -233,8 +233,8 @@ class MultiWalker
   def prepare_hal
     puts 'waking hal...'
     h = hal
-    h.busy_urls = []
-    h.save
+    #h.busy_urls = []
+    #h.save
     h
   end
 end
