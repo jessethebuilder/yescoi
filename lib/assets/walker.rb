@@ -119,8 +119,8 @@ class Walker
 
   def access
     if @machine.page.has_link?('Click Here for Public Access')
-      puts 'access'
       @machine.page.click_link 'Click Here for Public Access'
+      puts 'access'
       true
     else
       false
@@ -129,9 +129,9 @@ class Walker
 
   def agree
     if @machine.page.has_css?('#chkAgree')
-      puts 'agree'
       @machine.page.check 'chkAgree'
       @machine.page.click_button 'Continue'
+      puts 'agree'
       true
     else
       false
@@ -176,7 +176,7 @@ class MultiWalker
     # @urls = ['http://74.39.247.67/imo/search.aspx?advanced=true']
     #@urls = ['http://ocfintax.ongov.net/imate/search.aspx?advanced=true']
     # original
-      @urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
+      # @urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
 
 
     #@urls = ['http://yates.sdgnys.com/search.aspx?advanced=true']
