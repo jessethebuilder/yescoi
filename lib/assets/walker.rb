@@ -45,9 +45,9 @@ class Walker
           return if count == 10
         rescue => e
           puts e.inspect
-          puts e.backtrace
+          puts e.backtrace.join("\n\n")
           puts url
-          @machine.page.save_and_open_page
+          #@machine.page.save_and_open_page
           error_count += 1
           exit
         end
