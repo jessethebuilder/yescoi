@@ -27,7 +27,6 @@ class Record
   embeds_many :tax_summaries
 
   def parse
-    self.parent
     goto_record_start
     parse_main_page
     goto_tax_info
