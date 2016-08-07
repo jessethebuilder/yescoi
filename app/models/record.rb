@@ -5,6 +5,7 @@ class Record
   # , :row
 
   field :url, type: String
+  field :parent_url, type: String
   field :municipality, type: String
   field :tax_id, type: String
   field :owner, type: String
@@ -26,6 +27,7 @@ class Record
   embeds_many :tax_summaries
 
   def parse
+    self.parent
     goto_record_start
     parse_main_page
     goto_tax_info

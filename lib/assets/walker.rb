@@ -29,7 +29,7 @@ class Walker
     count = 0
     page_count = 1
 
-    goto_index(page_count)
+    parent_url = goto_index(page_count)
 
     while  record_rows = get_record_rows
       record_rows.each do |row|
@@ -37,7 +37,9 @@ class Walker
         begin
           url = "#{@base_url}/#{row.css('td')[@row_indexes[:tax_id]].css('a')[0]['href']}"
           ghost_step do
-             r = Record.new({url: url, machine: @machine}.merge(index_vars(row))).parse.save
+             r = Record.new({url: url, machine: @machine}.merge(index_vars(row))).parse
+             r.parent_url = parent_url
+             r.save
            end
 
           count += 1
@@ -105,6 +107,7 @@ class Walker
     url = "#{@index_url_base}?page=#{page_num}"
     ghost_step{ @machine.goto url }
     puts "WALKER: Preparing to parse page #{page_num}"
+    url
   end
 
   def goto_first_index
