@@ -12,11 +12,14 @@ class Walker
     @started_at = Time.now.to_i
 
     @start_url = url
-    @base_url = @start_url.match(/\A(https?:\/\/.+?)\//)[1]
-    @index_url_base = "#{@base_url}/viewlist.aspx?sort=printkey&swis=all&advanced=true"
-
     set_machine
+    # @index_url_base = "#{@base_url}/viewlist.aspx?sort=printkey&swis=all&advanced=true"
     goto_first_index
+    @index_url_base = @machine.page.current_url
+    @base_url = @index_url_base.match(/\A(https?:\/\/.+?)\/viewlist/)[1]
+
+# sleep 2
+    # goto_first_index
     set_row_indexes
   end
 
@@ -39,7 +42,7 @@ class Walker
 
           count += 1
           #dbg
-          # exit if count == 10
+          return if count == 10
         rescue => e
           puts e.inspect
           puts e.backtrace
@@ -95,10 +98,6 @@ class Walker
     else
       nil
     end
-  end
-
-  def set_machine
-    @machine = JsScrape.new(timeout: 180, :proxy => false, :debug => false)
   end
 
   def goto_index(page_num)
@@ -159,6 +158,10 @@ class Walker
       end
     end while retry_count == 0
   end
+
+  def set_machine
+    @machine = JsScrape.new(timeout: 30, :proxy => false, :debug => false)
+  end
 end
 
 class MultiWalker
@@ -167,23 +170,32 @@ class MultiWalker
   def initialize
     h = prepare_hal
     @urls = h.urls - h.complete_urls
-    @urls = ['http://74.39.247.67/imo/search.aspx?advanced=true']
+    # @urls = ['http://74.39.247.67/imo/search.aspx?advanced=true']
     #@urls = ['http://ocfintax.ongov.net/imate/search.aspx?advanced=true']
     # original
-    #@urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
+      # @urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
 
 
     #@urls = ['http://yates.sdgnys.com/search.aspx?advanced=true']
+
+    #@urls = ['https://www.madisoncounty.ny.gov/ImateWeb/search.aspx?advanced=true']
   end
 
   def parse
     count = 0
     error_count = 0
     while url = available_url do
-      saved_hash = Walker.new(url).parse
-      count += saved_hash[:count].to_i
-      error_count += saved_hash[:error_count].to_i
-      mark_as_complete(url)
+      # saved_hash broken
+      begin
+        saved_hash = Walker.new(url).parse
+        mark_as_complete(url)
+      rescue => e
+        puts e
+        puts e.stacktrace
+        mark_as_error(url)
+      end
+      #count += saved_hash[:count].to_i
+      #error_count += saved_hash[:error_count].to_i
     end
 
     puts "MULTI_WALKER: All Records Saved for Total of: #{count} with #{error_count}
@@ -194,8 +206,8 @@ class MultiWalker
 
   def available_url
     h = hal
-    # url = (@urls - h.busy_urls).sample
-    url = @urls.sample
+     url = (@urls - h.busy_urls).sample
+    #  url = @urls.sample
     if url
       h.busy_urls << url
       h.save
@@ -211,11 +223,17 @@ class MultiWalker
     h.save
   end
 
+  def mark_as_error(url)
+    h = hal
+    h.error_urls << url
+    h.save
+  end
+
   def prepare_hal
     puts 'waking hal...'
     h = hal
-    # h.busy_urls = []
-    # h.save
+    h.busy_urls = []
+    h.save
     h
   end
 end
