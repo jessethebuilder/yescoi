@@ -18,7 +18,6 @@ class Walker
     @index_url_base = @machine.page.current_url
     @base_url = @index_url_base.match(/\A(https?:\/\/.+?)\/viewlist/)[1]
 
-# sleep 2
     # goto_first_index
     set_row_indexes
   end
@@ -59,7 +58,7 @@ class Walker
       page_count += 1
       goto_index(page_count)
     end
-    @machine.page.save_and_open_page
+    #@machine.page.save_and_open_page
     puts "WALKER: Complete in #{(Time.now.to_i - @started_at) / 1000} Seconds with
          #{error_count} Record Saving Errors!"
     {:count => count, :errors => error_count}
@@ -104,7 +103,7 @@ class Walker
   end
 
   def goto_index(page_num)
-    url = "#{@index_url_base}?page=#{page_num}"
+    url = "#{@index_url_base}&page=#{page_num}"
     ghost_step{ @machine.goto url }
     puts "WALKER: Preparing to parse page #{page_num}"
     url
@@ -164,7 +163,7 @@ class Walker
   end
 
   def set_machine
-    @machine = JsScrape.new(timeout: 30, :proxy => false, :debug => false)
+    @machine = JsScrape.new(timeout: 60, :proxy => false, :debug => false)
   end
 end
 
@@ -177,7 +176,7 @@ class MultiWalker
     # @urls = ['http://74.39.247.67/imo/search.aspx?advanced=true']
     #@urls = ['http://ocfintax.ongov.net/imate/search.aspx?advanced=true']
     # original
-      # @urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
+      @urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
 
 
     #@urls = ['http://yates.sdgnys.com/search.aspx?advanced=true']
@@ -211,7 +210,7 @@ class MultiWalker
   def available_url
     h = hal
      url = (@urls - h.busy_urls).sample
-    #  url = @urls.sample
+     #  url = @urls.sample
     if url
       h.busy_urls << url
       h.save
