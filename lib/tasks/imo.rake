@@ -1,4 +1,5 @@
 require 'assets/walker.rb'
+require 'assets/multi_walker.rb'
 
 namespace :imo do
   desc "Gather Data"

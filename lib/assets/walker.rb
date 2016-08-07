@@ -1,24 +1,16 @@
-module WalkersHelper
-  def hal
-    Hal.first
-  end
-end
-
 class Walker
-  include WalkersHelper
-
-  def initialize(url)
+  def initialize(url, first_page: 1, pages_per: nil)
     puts 'WALKER: Starting...'
-    @started_at = Time.now.to_i
-
+    @first_page = first_page
+    @records_per = pages_per
     @start_url = url
+
     set_machine
-    # @index_url_base = "#{@base_url}/viewlist.aspx?sort=printkey&swis=all&advanced=true"
     goto_first_index
+
     @index_url_base = @machine.page.current_url
     @base_url = @index_url_base.match(/\A(https?:\/\/.+?)\/viewlist/)[1]
 
-    # goto_first_index
     set_row_indexes
   end
 
@@ -26,9 +18,10 @@ class Walker
     puts "WALKER: Parsing - #{@start_url}"
     error_count = 0
     count = 0
-    page_count = 1
+    page_count = 0
+    current_page = @first_page
 
-    parent_url = goto_index(page_count)
+    parent_url = goto_index(@first_page)
 
     while  record_rows = get_record_rows
       record_rows.each do |row|
@@ -38,30 +31,32 @@ class Walker
           ghost_step do
              r = Record.new({url: url, machine: @machine}.merge(index_vars(row))).parse
              r.parent_url = parent_url
+             r.base_url = @start_url
              r.save
-           end
+          end
 
           count += 1
-
-          # To cycle though all urls
-          #return if count == 10
         rescue => e
           puts e.inspect
           puts e.backtrace.join("\n\n")
           puts url
-          #@machine.page.save_and_open_page
           error_count += 1
-          exit
+          @machine.page.save_and_open_page if Rails.env.development?
+          h = hal
+          h.error_urls << url
+          h.save
         end
       end
 
+      return {@start_url => (page_count + current_page)} if @records_per && page_count == @records_per
+
       page_count += 1
-      goto_index(page_count)
+      current_page += 1
+      goto_index(current_page)
     end
-    #@machine.page.save_and_open_page
-    puts "WALKER: Complete in #{(Time.now.to_i - @started_at) / 1000} Seconds with
-         #{error_count} Record Saving Errors!"
-    {:count => count, :errors => error_count}
+    puts "WALKER: Complete!"
+
+    return {@start_url => :complete}
   end
 
   private
@@ -165,78 +160,8 @@ class Walker
   def set_machine
     @machine = JsScrape.new(timeout: 60, :proxy => false, :debug => false)
   end
-end
 
-class MultiWalker
-  include WalkersHelper
-
-  def initialize
-    h = prepare_hal
-    @urls = h.urls - h.complete_urls
-    # @urls = ['http://74.39.247.67/imo/search.aspx?advanced=true']
-    #@urls = ['http://ocfintax.ongov.net/imate/search.aspx?advanced=true']
-    # original
-      # @urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
-
-
-    #@urls = ['http://yates.sdgnys.com/search.aspx?advanced=true']
-
-    #@urls = ['https://www.madisoncounty.ny.gov/ImateWeb/search.aspx?advanced=true']
-  end
-
-  def parse
-    count = 0
-    error_count = 0
-    while url = available_url do
-      # saved_hash broken
-      begin
-        saved_hash = Walker.new(url).parse
-        mark_as_complete(url)
-      rescue => e
-        puts e
-        puts e.stacktrace
-        mark_as_error(url)
-      end
-      #count += saved_hash[:count].to_i
-      #error_count += saved_hash[:error_count].to_i
-    end
-
-    puts "MULTI_WALKER: All Records Saved for Total of: #{count} with #{error_count}
-          Record Saving Errors!!!!!!"
-  end
-
-  private
-
-  def available_url
-    h = hal
-     url = (@urls - h.busy_urls).sample
-     #  url = @urls.sample
-    if url
-      h.busy_urls << url
-      h.save
-      url
-    else
-      nil
-    end
-  end
-
-  def mark_as_complete(url)
-    h = hal
-    h.complete_urls << url
-    h.save
-  end
-
-  def mark_as_error(url)
-    h = hal
-    h.error_urls << url
-    h.save
-  end
-
-  def prepare_hal
-    puts 'waking hal...'
-    h = hal
-    #h.busy_urls = []
-    #h.save
-    h
+  def hal
+    Hal.first
   end
 end

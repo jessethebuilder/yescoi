@@ -6,6 +6,7 @@ class Record
 
   field :url, type: String
   field :parent_url, type: String
+  field :base_url, type: String
   field :municipality, type: String
   field :tax_id, type: String
   field :owner, type: String
@@ -33,9 +34,7 @@ class Record
     parse_tax_info
     self
   end
-  def t
-    tax_summaries
-  end
+
   private
 
   def parse_tax_info
@@ -43,7 +42,9 @@ class Record
       rows = @machine.doc.css("##{tbl} tr")[1..-2]
       if rows
         rows.each do |row|
-          self.tax_summaries << TaxSummary.new(:row => row).parse
+          ts = TaxSummary.new(:row => row).parse
+          # puts ts.inspect
+          self.tax_summaries << ts
         end
       else
         puts 'no tax-info ----------------------------------------------'

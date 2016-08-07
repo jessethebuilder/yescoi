@@ -1,7 +1,7 @@
 class TaxSummary
   include Mongoid::Document
 
-  embedded_in :record
+  embedded_in :record, inverse_of: :tax_summary
 
   attr_accessor :row
 
@@ -15,6 +15,7 @@ class TaxSummary
 
   def parse
     cols = row.css('td')
+
     if cols.count > 1
       self.tax_year = cols[0].text.strip.gsub(/\A[[:space:]]/, '')
       self.tax_type = cols[1].text.strip.gsub(/\A[[:space:]]/, '')

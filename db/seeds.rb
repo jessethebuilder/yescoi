@@ -1,7 +1,7 @@
 Hal.destroy_all
 
 h = Hal.new
-h.urls = ['http://24.213.254.86/imo/search.aspx?advanced=true',
+urls = ['http://24.213.254.86/imo/search.aspx?advanced=true',
 'http://64.132.212.35/imate/search.aspx?advanced=true',
 'http://74.39.247.67/imo/search.aspx?advanced=true',
 'http://allegany.sdgnys.com/search.aspx?advanced=true',
@@ -31,6 +31,11 @@ h.urls = ['http://24.213.254.86/imo/search.aspx?advanced=true',
 'http://webapps.co.sullivan.ny.us/IMO/search.aspx?advanced=true',
 'http://yates.sdgnys.com/search.aspx?advanced=true',
 'https://www.madisoncounty.ny.gov/ImateWeb/search.aspx?advanced=true']
+
+urls.each do |url|
+  h.urls[url] = 1
+  h.busy_urls[url] = 1
+end
 
 h.save
 
