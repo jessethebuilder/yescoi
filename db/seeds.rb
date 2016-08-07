@@ -25,7 +25,7 @@ h.urls = ['http://24.213.254.86/imo/search.aspx?advanced=true',
 'http://putnam.sdgnys.com/search.aspx?advanced=true',
 'http://ranger.co.montgomery.ny.us/IMO/search.aspx',
 'http://rpts-imo.co.essex.ny.us/IMO/search.aspx?advanced=true',
-'http://rptsweb.oswegocounty.com/search.aspx?advanced=true',
+#'http://rptsweb.oswegocounty.com/search.aspx?advanced=true',
 'http://saratoga.sdgnys.com/search.aspx?advanced=true',
 'http://schuyler.sdgnys.com/search.aspx?advanced=true',
 'http://webapps.co.sullivan.ny.us/IMO/search.aspx?advanced=true',
@@ -33,3 +33,5 @@ h.urls = ['http://24.213.254.86/imo/search.aspx?advanced=true',
 'https://www.madisoncounty.ny.gov/ImateWeb/search.aspx?advanced=true']
 
 h.save
+
+Record.destroy_all

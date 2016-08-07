@@ -4,7 +4,7 @@ class Record
   attr_accessor :machine
   # , :row
 
-  field :record_url, type: String
+  field :url, type: String
   field :municipality, type: String
   field :tax_id, type: String
   field :owner, type: String
@@ -26,7 +26,6 @@ class Record
   embeds_many :tax_summaries
 
   def parse
-    #parse_index_row
     goto_record_start
     parse_main_page
     goto_tax_info
@@ -86,6 +85,6 @@ class Record
   end
 
   def goto_record_start
-    machine.goto self.record_url
+    machine.goto self.url
   end
 end

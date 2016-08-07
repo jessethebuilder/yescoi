@@ -34,10 +34,12 @@ class Walker
         begin
           url = "#{@base_url}/#{row.css('td')[@row_indexes[:tax_id]].css('a')[0]['href']}"
           ghost_step do
-             r = Record.new({record_url: url, machine: @machine}.merge(index_vars(row))).parse.save
+             r = Record.new({url: url, machine: @machine}.merge(index_vars(row))).parse.save
            end
 
           count += 1
+          #dbg
+          # exit if count == 10
         rescue => e
           puts e.inspect
           puts e.backtrace
@@ -51,6 +53,7 @@ class Walker
       page_count += 1
       goto_index(page_count)
     end
+    @machine.page.save_and_open_page
     puts "WALKER: Complete in #{(Time.now.to_i - @started_at) / 1000} Seconds with
          #{error_count} Record Saving Errors!"
     {:count => count, :errors => error_count}
@@ -65,6 +68,8 @@ class Walker
     @row_indexes.each do |k, v|
       h[k] = cells[v].text.strip
     end
+
+    h
   end
 
   def set_row_indexes
@@ -82,28 +87,6 @@ class Walker
         end
       end
     end
-
-
-
-    # def parse_index_row
-    #   cols = self.row.css('td')
-    #   self.tax_id = cols[1].text.strip
-    #   self.owner = cols[2].text.strip
-    #   self.street_num = cols[3].text.strip
-    #   self.street_name = cols[4].text.strip
-
-    #   get this elsewhere
-    #   self.municipality = cols[0].text.strip.split(' - ')[1]
-    # end
-
-    # record_rows[0].css('td').each_with_index do |td, i|
-    #   if td.css('a') && td.css('a').text == 'Tax ID'
-    #     @index_col = i
-    #     break
-    #   end
-    # end
-
-
   end
 
   def get_record_rows
@@ -184,12 +167,13 @@ class MultiWalker
   def initialize
     h = prepare_hal
     @urls = h.urls - h.complete_urls
-
+    @urls = ['http://74.39.247.67/imo/search.aspx?advanced=true']
+    #@urls = ['http://ocfintax.ongov.net/imate/search.aspx?advanced=true']
     # original
-  #  @urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
+    #@urls = ['http://imo.schohariecounty-ny.gov/viewlist.aspx?sort=printkey&swis=all&advanced=true']
 
 
-  #  @urls = ['http://yates.sdgnys.com/search.aspx?advanced=true']
+    #@urls = ['http://yates.sdgnys.com/search.aspx?advanced=true']
   end
 
   def parse
@@ -201,6 +185,7 @@ class MultiWalker
       error_count += saved_hash[:error_count].to_i
       mark_as_complete(url)
     end
+
     puts "MULTI_WALKER: All Records Saved for Total of: #{count} with #{error_count}
           Record Saving Errors!!!!!!"
   end
@@ -209,7 +194,8 @@ class MultiWalker
 
   def available_url
     h = hal
-    url = (@urls - h.busy_urls).sample
+    # url = (@urls - h.busy_urls).sample
+    url = @urls.sample
     if url
       h.busy_urls << url
       h.save
@@ -228,8 +214,8 @@ class MultiWalker
   def prepare_hal
     puts 'waking hal...'
     h = hal
-    h.busy_urls = []
-    h.save
+    # h.busy_urls = []
+    # h.save
     h
   end
 end
