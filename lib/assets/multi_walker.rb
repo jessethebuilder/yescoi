@@ -1,6 +1,6 @@
 class MultiWalker
   # debug
-  def initialize(pages_per = 1)
+  def initialize(pages_per = 20)
     h = hal
     @pages_per = pages_per
     @urls = h.urls.keys
@@ -20,7 +20,7 @@ class MultiWalker
       begin
         # parse returns a hash with single k/v. Key is url. Val is an
         # integer indicating the last page saved, or the symbol :complete
-        last_page = Walker.new(url, first_page: first_page, pages_per: @pages_per).parse
+        last_page = Walker.new(url, first_page, @pages_per).parse
 
         if last_page == :complete
           mark_as_complete(key)

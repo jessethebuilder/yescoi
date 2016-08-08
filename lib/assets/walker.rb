@@ -1,5 +1,5 @@
 class Walker
-  def initialize(url, first_page: 1, pages_per: 20)
+  def initialize(url, first_page, pages_per)
     puts 'WALKER: Starting...'
     @first_page = first_page
     @records_per = pages_per
@@ -36,7 +36,7 @@ class Walker
           end
 
           count += 1
-break
+# break
         rescue => e
           error_count += 1
           @machine.page.save_and_open_page if Rails.env.development?
@@ -48,7 +48,7 @@ break
       end #each record
 
       return page_count + current_page if page_count == @per_page
-break
+# break
       page_count += 1
       current_page += 1
       goto_index(current_page)
