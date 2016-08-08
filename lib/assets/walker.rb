@@ -36,6 +36,7 @@ class Walker
           end
 
           count += 1
+break
         rescue => e
           error_count += 1
           @machine.page.save_and_open_page if Rails.env.development?
@@ -43,10 +44,11 @@ class Walker
           h.error_urls << url
           h.save
         end
-      end
+
+      end #each record
 
       return page_count + current_page if page_count == @per_page
-
+break
       page_count += 1
       current_page += 1
       goto_index(current_page)
@@ -97,7 +99,7 @@ class Walker
   def goto_index(page_num)
     url = "#{@index_url_base}&page=#{page_num}"
     ghost_step{ @machine.goto url }
-    puts "WALKER: Preparing to parse page #{page_num}"
+    puts "WALKER: Preparing to parse page #{page_num} as #{url}"
     url
   end
 
@@ -144,6 +146,7 @@ class Walker
     begin
       begin
         block.call
+
         incomplete = false
       rescue Capybara::Poltergeist::Error => cap_err
         puts "WALKER ERROR (Poltergeist): #{cap_err.message}"
@@ -155,7 +158,7 @@ class Walker
   end
 
   def set_machine
-    @machine = JsScrape.new(timeout: 20, :proxy => false, :debug => false)
+    @machine = JsScrape.new(timeout: 120, :proxy => false, :debug => false)
   end
 
   def hal
