@@ -39,6 +39,7 @@ class MultiWalker
     puts "MULTI_WALKER: All Records Saved"
   end
 
+ 
   private
 
   def available_url_hash
