@@ -33,8 +33,8 @@ urls = ['http://24.213.254.86/imo/search.aspx?advanced=true',
 'https://www.madisoncounty.ny.gov/ImateWeb/search.aspx?advanced=true']
 
 urls.each do |url|
-  h.urls[url] = 1
-  h.busy_urls[url] = 1
+  h.urls[url.gsub('.', '_')] = 0
+  h.busy_urls[url.gsub('.', '_')] = 0
 end
 
 h.save

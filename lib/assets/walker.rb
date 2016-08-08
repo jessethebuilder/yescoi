@@ -1,5 +1,5 @@
 class Walker
-  def initialize(url, first_page: 1, pages_per: nil)
+  def initialize(url, first_page: 1, pages_per: 20)
     puts 'WALKER: Starting...'
     @first_page = first_page
     @records_per = pages_per
@@ -37,9 +37,6 @@ class Walker
 
           count += 1
         rescue => e
-          puts e.inspect
-          puts e.backtrace.join("\n\n")
-          puts url
           error_count += 1
           @machine.page.save_and_open_page if Rails.env.development?
           h = hal
@@ -48,7 +45,7 @@ class Walker
         end
       end
 
-      return {@start_url => (page_count + current_page)} if @records_per && page_count == @records_per
+      return page_count + current_page if page_count == @per_page
 
       page_count += 1
       current_page += 1
@@ -56,7 +53,7 @@ class Walker
     end
     puts "WALKER: Complete!"
 
-    return {@start_url => :complete}
+    return :complete
   end
 
   private
@@ -158,7 +155,7 @@ class Walker
   end
 
   def set_machine
-    @machine = JsScrape.new(timeout: 60, :proxy => false, :debug => false)
+    @machine = JsScrape.new(timeout: 20, :proxy => false, :debug => false)
   end
 
   def hal

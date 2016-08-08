@@ -2,7 +2,6 @@ class Record
   include Mongoid::Document
 
   attr_accessor :machine
-  # , :row
 
   field :url, type: String
   field :parent_url, type: String
@@ -46,8 +45,6 @@ class Record
           # puts ts.inspect
           self.tax_summaries << ts
         end
-      else
-        puts 'no tax-info ----------------------------------------------'
       end
     end
   end
@@ -55,9 +52,7 @@ class Record
   def goto_tax_info
     if(@machine.page.has_css?('#btnTaxInfo'))
       @machine.page.click_button 'btnTaxInfo'
-  # ?  else
-      # @machine.page.click_button 'btnCTaxInfo'
-    # end
+
       if @machine.page.has_link? 'Display Historical Tax Information'
         @machine.page.click_link 'Display Historical Tax Information'
       end
