@@ -1,6 +1,6 @@
 class MultiWalker
   # debug
-  def initialize(pages_per = 20)
+  def initialize(pages_per = 5)
     h = hal
     @pages_per = pages_per
     @urls = h.urls.keys

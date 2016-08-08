@@ -1,4 +1,4 @@
-Hal.destroy_all
+Hal.delete_all
 
 h = Hal.new
 urls = ['http://24.213.254.86/imo/search.aspx?advanced=true',
