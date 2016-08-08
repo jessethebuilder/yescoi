@@ -32,6 +32,7 @@ class Walker
              r = Record.new({url: url, machine: @machine}.merge(index_vars(row))).parse
              r.parent_url = parent_url
              r.base_url = @start_url
+             r.page_number = current_page
              r.save
           end
 
@@ -54,7 +55,6 @@ class Walker
       goto_index(current_page)
     end
     puts "WALKER: Complete!"
-
     return :complete
   end
 

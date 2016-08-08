@@ -6,6 +6,7 @@ class Record
   field :url, type: String
   field :parent_url, type: String
   field :base_url, type: String
+  field :page_number, type: Integer
   field :municipality, type: String
   field :tax_id, type: String
   field :owner, type: String
