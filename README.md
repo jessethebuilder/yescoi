@@ -1,5 +1,8 @@
-Run through rake tasks in lib/tasks
-
+Parse:
+  Local:
+    rake imo:parse
+  Heroku:
+    heroku run bundle exec rake imo:parse
 Write:
   Local:
     mongoexport --db yescoi_development --collection records --jsonArray --out imo.json
